@@ -4,6 +4,9 @@
  * Same contract as the rest of the family: a pitch site quotes this instead of
  * writing copy about the seed, and every field here is also stated on the site.
  */
+/** GitHub Pages serves a project site under /<repo>/, not at the root. */
+export const BASE = '/le.stalk/'
+
 export const SELF_CARD = {
   version: 1,
   id: 'le.stalk',

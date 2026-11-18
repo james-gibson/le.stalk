@@ -12,7 +12,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { PALETTE, measured } from '../src/palette.mjs'
-import { IDENTITY, SELF_CARD } from '../src/self-card.mjs'
+import { BASE, IDENTITY, SELF_CARD } from '../src/self-card.mjs'
 import { COLLECTIONS, SEEDS, STATS, membersOf } from '../src/stalk.mjs'
 import { ROUTES } from '../src/render.mjs'
 
@@ -124,26 +124,60 @@ try {
   else fail('isotope', `the canon could not read the feature: ${String(error.message).slice(0, 120)}`)
 }
 
-// --- 8. internal links resolve -------------------------------------------
-const files = new Set(ROUTES.map((route) => `/${route.path ? `${route.path}/` : ''}`))
-for (const name of readdirSync(DIST)) files.add(`/${name}`)
-for (const route of ROUTES) {
-  const file = join(DIST, route.path, 'index.html')
+// --- 8. internal links stay inside the mount and resolve ------------------
+// GitHub Pages serves this site under /le.stalk/. A root-absolute link is not
+// a broken link on localhost — it is a link to somebody else's site, and the
+// first deploy proved it: every page was a 200 at its own address while every
+// link in the navigation answered 404. The guard now reads the href the browser
+// will read, strips the mount, and resolves that.
+const built = new Set()
+for (const route of ROUTES) built.add(`/${route.path ? `${route.path}/` : ''}`)
+for (const name of readdirSync(DIST)) built.add(`/${name}`)
+built.add('/icons/')
+
+const resolveMount = (href) => {
+  if (!href.startsWith(BASE)) return null
+  return `/${href.slice(BASE.length)}`
+}
+
+const linkPages = [
+  ...ROUTES.map((route) => ({ name: route.path || '/', file: join(DIST, route.path, 'index.html') })),
+  { name: '404', file: join(DIST, '404.html') },
+]
+for (const { name, file } of linkPages) {
   if (!existsSync(file)) continue
   const html = read(file)
-  for (const match of html.matchAll(/href="(\/[^"#?]*)"/g)) {
-    const href = match[1]
-    if (href === '/') continue
+  const bare = html.replace(/<style>[\s\S]*?<\/style>/, '')
+  for (const match of bare.matchAll(/\b(href|src)="(\/[^"#?]*)"/g)) {
+    const [, attribute, href] = match
+    const mounted = resolveMount(href)
+    if (!mounted) {
+      fail('base-path', `${name} ${attribute} "${href}" leaves the mount ${BASE}`)
+      continue
+    }
     const known =
-      files.has(href) ||
-      files.has(href.replace(/\/$/, '')) ||
-      href.startsWith('/icons/') ||
-      href.endsWith('.svg') ||
-      href.endsWith('.json') ||
-      href.endsWith('.txt') ||
-      href.endsWith('.xml')
-    if (!known) fail('link', `${route.path || '/'} links to ${href}, which the build does not produce`)
+      built.has(mounted) ||
+      built.has(mounted.replace(/\/$/, '')) ||
+      mounted.startsWith('/icons/') ||
+      mounted.endsWith('.svg') ||
+      mounted.endsWith('.json') ||
+      mounted.endsWith('.txt') ||
+      mounted.endsWith('.xml') ||
+      mounted.endsWith('.png')
+    if (!known) fail('link', `${name} links to ${href}, which the build does not produce`)
   }
+}
+
+// The mount itself is a claim about the deployment: the canonical, the icon and
+// the manifest all have to agree that this site lives under BASE.
+for (const route of ROUTES) {
+  const html = read(join(DIST, route.path, 'index.html'))
+  if (!html.includes(`href="${BASE}favicon.svg"`)) fail('base-path', `${route.path || '/'} does not mount the favicon`)
+  if (!html.includes(`href="${BASE}manifest.json"`)) fail('base-path', `${route.path || '/'} does not mount the manifest`)
+}
+if (manifest.id !== BASE) fail('base-path', `manifest id is ${manifest.id}, not ${BASE}`)
+for (const shortcut of manifest.shortcuts ?? []) {
+  if (!shortcut.url.startsWith('./')) fail('base-path', `shortcut ${shortcut.url} is not relative to the manifest`)
 }
 
 // --- 9. the machine entry lists every page -------------------------------

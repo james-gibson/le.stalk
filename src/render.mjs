@@ -1,5 +1,6 @@
 import { CSS } from './theme.mjs'
 import { measured } from './palette.mjs'
+import { BASE } from './self-card.mjs'
 import {
   COLLECTIONS,
   EDGE_KINDS,
@@ -16,6 +17,9 @@ import {
   edges,
   membersOf,
 } from './stalk.mjs'
+
+/** A site path, mounted. Nothing internal is written root-absolute. */
+const at = (path = '') => `${BASE}${path}`
 
 const esc = (value) =>
   String(value)
@@ -36,7 +40,7 @@ const nav = (current) =>
   ROUTES.filter((route) => route.path)
     .map(
       (route) =>
-        `<a href="/${route.path}/"${current === route.path ? ' aria-current="page"' : ''}>${esc(route.nav)}</a>`,
+        `<a href="${at(`${route.path}/`)}"${current === route.path ? ' aria-current="page"' : ''}>${esc(route.nav)}</a>`,
     )
     .join('')
 
@@ -59,15 +63,16 @@ export function layout({ title, description, current, body }) {
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#12201A">
 <meta name="application-name" content="le.stalk">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/svg+xml" href="${at('favicon.svg')}">
+<link rel="apple-touch-icon" href="${at('icons/apple-touch-icon.png')}">
+<link rel="manifest" href="${at('manifest.json')}">
 <link rel="canonical" href="${LIVE}/${current ? `${current}/` : ''}">
 <style>${CSS}</style>
 </head>
 <body>
 <div class="wrap">
 <header class="masthead">
-  <a class="brand" href="/"${current === '' ? ' aria-current="page"' : ''} aria-label="le.stalk — lineage and collections">
+  <a class="brand" href="${at()}"${current === '' ? ' aria-current="page"' : ''} aria-label="le.stalk — lineage and collections">
     ${MARK}
     <span class="brand__name">le<span class="brand__dot">.</span>stalk</span>
     <span class="brand__sub">lineage · collections · bills</span>
@@ -80,8 +85,8 @@ export function layout({ title, description, current, body }) {
   <nav aria-label="Elsewhere">
     <a href="https://james-gibson.github.io/le.plot/">le.plot</a>
     <a href="https://james-gibson.github.io/le.seo/">le.seo</a>
-    <a href="/seed.json">seed.json</a>
-    <a href="/llms.txt">llms.txt</a>
+    <a href="${at('seed.json')}">seed.json</a>
+    <a href="${at('llms.txt')}">llms.txt</a>
     <a href="https://github.com/${REPO}">source</a>
   </nav>
 </footer>
@@ -116,17 +121,17 @@ things a build can check.</p>
   <div class="answer">
     <h3>A collection is a predicate with an owner</h3>
     <p>Not a folder and not a tag. It has an admission rule, a purpose, an owner and a snapshot, and
-    its members are recalculated every build. <a href="/collections/">Five of them, evaluated</a>.</p>
+    its members are recalculated every build. <a href="${at('collections/')}">Five of them, evaluated</a>.</p>
   </div>
   <div class="answer">
     <h3>A bill of materials is three layers</h3>
     <p>Shape, runtime, artifacts — each entry saying where it came from. A layer nobody published is
-    <em>unverified</em>, not omitted. <a href="/bom/">The family's bills, with the gaps visible</a>.</p>
+    <em>unverified</em>, not omitted. <a href="${at('bom/')}">The family's bills, with the gaps visible</a>.</p>
   </div>
   <div class="answer">
     <h3>Lineage is typed edges; a graft needs a reason</h3>
     <p>Cut-from, ships, composes, quotes, documents. An edge that crosses lineage is a graft and
-    must carry a claim. <a href="/lineage/">The graph, and the crossings</a>.</p>
+    must carry a claim. <a href="${at('lineage/')}">The graph, and the crossings</a>.</p>
   </div>
 </div>
 
@@ -144,7 +149,7 @@ a genotype; a seed is a phenotype; a collection is a generation. A Mendel table 
 crossing kept, added and lost — and the Mandelbrot claim is that the rule is the same at every
 zoom, which is only true if a seed can say what it inherited.</p>
 <p>It is also the seed that proves its own point: it is cut from the starter, and its
-<a href="/lineage/#mendel">Mendel table</a> says exactly what it dropped.</p>
+<a href="${at('lineage/')}#mendel">Mendel table</a> says exactly what it dropped.</p>
 
 <h2>What this costs</h2>
 <ul>
@@ -396,8 +401,8 @@ changes. That is the claim, and it is falsifiable: a seed that needs a different
 scale is a break in self-similarity, and the break is worth naming rather than smoothing over.</p>
 <p>The boundary is the interesting part. A seed's coastline is the set of claims another seed could
 also make: a quote, a shared isotope, a copied palette. The coastline is where the family is
-actually joined, and it is why the <a href="/collections/#c-quoted">quoted</a> collection is small
-and the <a href="/bom/">bills</a> are thin.</p>
+actually joined, and it is why the <a href="${at('collections/')}#c-quoted">quoted</a> collection is small
+and the <a href="${at('bom/')}">bills</a> are thin.</p>
 
 <h2>What the graph refuses</h2>
 <ul>
@@ -496,8 +501,8 @@ export function notFound() {
     description: 'That address is not in the model.',
     current: '404',
     body: `<div class="page"><p class="eyebrow">404</p><h1>No row here.</h1>
-<p>That address is not in the model. <a href="/">Back to the collections</a>, or read the
-<a href="/lineage/">lineage</a>.</p></div>`,
+<p>That address is not in the model. <a href="${at()}">Back to the collections</a>, or read the
+<a href="${at('lineage/')}">lineage</a>.</p></div>`,
   })
 }
 
