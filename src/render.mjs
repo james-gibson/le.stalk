@@ -435,7 +435,6 @@ materials, kept in the shape they were declared.</p>
 <pre><code>isotope    ${esc(id)}
 signature  ${esc(signature)}  (hmac-sha256, key seed-42)
 canon      ${esc(canon)}
-parts      ${esc(parts)}
 source     features/dilly-bean.feature</code></pre>
 <p class="small muted">Run <code>npm run isotope</code> to re-derive it with the real canon. If the
 number above is not what that command prints, the page is wrong and the build should be stopped.</p>

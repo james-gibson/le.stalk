@@ -26,7 +26,7 @@ const pages = {
   lineage: lineage(),
   'isotope/dilly-bean': isotope({
     id: IDENTITY.id,
-    signature: `${IDENTITY.signature}  (hmac-sha256, key seed-42)`,
+    signature: IDENTITY.signature,
     canon: `${IDENTITY.tokens} tokens, ${IDENTITY.parts} parts`,
     tokens: IDENTITY.tokens,
     parts: IDENTITY.parts,
