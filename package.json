@@ -1,0 +1,14 @@
+{
+  "name": "le-stalk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Collections, bills of materials and lineage for a family of seeds.",
+  "scripts": {
+    "icons": "node scripts/icons.mjs",
+    "build": "node scripts/icons.mjs && node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "verify": "node scripts/verify.mjs",
+    "isotope": "python3 scripts/validate-spec.py features/dilly-bean.feature --brine \"$HOME/projects/kb/projects/scripts/brine\""
+  }
+}
